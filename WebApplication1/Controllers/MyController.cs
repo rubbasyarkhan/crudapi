@@ -14,12 +14,21 @@ namespace WebApplication1.Controllers
             this.db = db;
         }
 
-        [HttpGet]
-        public IActionResult GetProduct()
+
+        [HttpGet("{id}")]
+        public IActionResult GetProduct(int id)
         {
-            return 
-                Ok(db.Cruds.ToList());
+            var product = db.Cruds.Find(id);
+
+            // Check if the product exists
+            if (product == null)
+            {
+                return NotFound(); 
+            }
+
+            return Ok(product); // Return the product if it exists
         }
+
 
         [HttpPost]
         public IActionResult AddProduct(Crud crud)
@@ -38,16 +47,29 @@ namespace WebApplication1.Controllers
             db.SaveChanges();
             return StatusCode(201);
         }
-        
-        [HttpPut]
-        public IActionResult EditProduct(int id)
 
+        [HttpPut("{id}")]
+        public IActionResult EditProduct(int id, [FromBody] Crud updatedCrud)
         {
             var product = db.Cruds.Find(id);
+
+            // Check if the product exists
+            if (product == null)
+            {
+                return NotFound(); // Return 404 if the product doesn't exist
+            }
+
+            // Update the properties of the product
+            product.Name = updatedCrud.Name;
+            product.Description = updatedCrud.Description;
+            product.Price = updatedCrud.Price; // Add all the necessary properties of the product you want to update
+
             db.Cruds.Update(product);
             db.SaveChanges();
-            return StatusCode(201);
+
+            return Ok(product); // Return the updated product
         }
+
 
 
 
